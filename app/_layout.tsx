@@ -45,7 +45,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ title: 'SupaView' }} />
         <Stack.Screen name="project/add" options={{ title: 'Add Project' }} />
         <Stack.Screen name="platform/login" options={{ title: 'Supabase Account' }} />
-        <Stack.Screen name="platform/projects" options={{ title: 'Projects' }} />
+        <Stack.Screen name="platform/projects" options={{ title: 'Projects', gestureEnabled: false, headerBackVisible: false }} />
         <Stack.Screen name="project/[id]" options={{ headerShown: false, gestureEnabled: false }} />
       </Stack>
     </View>
