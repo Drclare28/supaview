@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.drclare28.SupabaseClient"
+      "bundleIdentifier": "com.vertizonticalstudios.supaview"
     },
     "android": {
       "adaptiveIcon": {
