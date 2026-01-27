@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SupaView",
-    "slug": "SupabaseClient",
+    "slug": "supaview",
     "scheme": "supaview",
     "version": "1.0.0",
     "orientation": "portrait",
