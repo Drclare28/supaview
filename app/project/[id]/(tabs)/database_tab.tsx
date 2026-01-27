@@ -1,14 +1,15 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing } from '../../../../constants/Theme';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter, useGlobalSearchParams } from 'expo-router';
 import { useSupabase } from '../../../../hooks/useSupabase';
 import { useState, useEffect } from 'react';
 import { Table, ChevronRight, Search, AlertCircle } from 'lucide-react-native';
 
 export default function TableListScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useGlobalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { client, project } = useSupabase(id);
+  const { client, project, error: clientError } = useSupabase(id);
   const [tables, setTables] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +25,6 @@ export default function TableListScreen() {
     setIsLoading(true);
     setError(null);
     try {
-      // 1. Attempt to fetch from the OpenAPI spec (PostgREST root)
-      // This is the most reliable way to find all public tables without any custom RPCs.
       const response = await fetch(`${project.url}/rest/v1/`, {
         headers: {
           'apikey': project.serviceRoleKey || project.anonKey,
@@ -39,7 +38,7 @@ export default function TableListScreen() {
           const tableNames = Object.keys(spec.definitions);
           const formattedTables = tableNames.map(name => ({
             name,
-            row_count: null // Spec doesn't include row counts
+            row_count: null
           }));
           setTables(formattedTables);
           return;
@@ -75,48 +74,74 @@ export default function TableListScreen() {
     </TouchableOpacity>
   );
 
-  return (
-    <View style={styles.container}>
-      {isLoading ? (
-        <ActivityIndicator style={styles.loader} color={Colors.primary} />
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <AlertCircle size={48} color={Colors.error} />
-          <Text style={styles.errorTitle}>Discovery Issues</Text>
-          <Text style={styles.errorDescription}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchTables}>
-            <Text style={styles.retryButtonText}>Retry Discovery</Text>
-          </TouchableOpacity>
+  if (clientError) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>{clientError}</Text>
         </View>
-      ) : (
-        <FlatList
-          data={tables}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.name}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={fetchTables} tintColor={Colors.primary} />
-          }
-          ListHeaderComponent={
-            <View style={styles.header}>
-              <Text style={styles.headerTitle}>{tables.length} Tables Discovered</Text>
-            </View>
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No tables found in "public" schema.</Text>
-            </View>
-          }
-        />
-      )}
-    </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <View style={styles.container}>
+        {isLoading ? (
+          <ActivityIndicator style={styles.loader} color={Colors.primary} />
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <AlertCircle size={48} color={Colors.error} />
+            <Text style={styles.errorTitle}>Discovery Issues</Text>
+            <Text style={styles.errorDescription}>{error}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={fetchTables}>
+              <Text style={styles.retryButtonText}>Retry Discovery</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={tables}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.name}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl refreshing={isLoading} onRefresh={fetchTables} tintColor={Colors.primary} />
+            }
+            ListHeaderComponent={
+              <View style={styles.header}>
+                <Text style={styles.headerTitle}>{tables.length} Tables Discovered</Text>
+              </View>
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No tables found in "public" schema.</Text>
+              </View>
+            }
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: 16,
   },
   loader: {
     marginTop: 50,

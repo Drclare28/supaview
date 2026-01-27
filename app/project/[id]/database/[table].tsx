@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Dimensions, Modal, ScrollView, TouchableOpacity, Alert, TextInput, Platform } from 'react-native';
 import { Colors, Spacing } from '../../../../constants/Theme';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, Stack } from 'expo-router';
 import { useSupabase } from '../../../../hooks/useSupabase';
 import { useState, useEffect } from 'react';
 import { Search, Filter, Plus, ChevronRight, X, Edit3, Trash2 } from 'lucide-react-native';
@@ -180,6 +180,7 @@ export default function TableRecordsScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: table || 'Table View' }} />
       <FlatList
         data={records}
         renderItem={renderRecordItem}

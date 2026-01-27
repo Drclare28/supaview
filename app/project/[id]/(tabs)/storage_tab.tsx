@@ -1,14 +1,15 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing } from '../../../../constants/Theme';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter, useGlobalSearchParams } from 'expo-router';
 import { useSupabase } from '../../../../hooks/useSupabase';
 import { useState, useEffect } from 'react';
 import { Box, Lock, Unlock, ChevronRight, HardDrive, Plus } from 'lucide-react-native';
 
-export default function BucketListScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+export default function StorageManagementScreen() {
+  const { id } = useGlobalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { client } = useSupabase(id);
+  const { client, project, error: clientError } = useSupabase(id);
   const [buckets, setBuckets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -22,6 +23,7 @@ export default function BucketListScreen() {
 
   const fetchBuckets = async () => {
     if (!client) return;
+    
     setIsLoading(true);
     setError(null);
     try {
@@ -69,45 +71,63 @@ export default function BucketListScreen() {
     </TouchableOpacity>
   );
 
-  return (
-    <View style={styles.container}>
-      {isLoading ? (
-        <ActivityIndicator style={styles.loader} color={Colors.primary} />
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchBuckets}>
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
+  if (clientError) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>{clientError}</Text>
         </View>
-      ) : (
-        <FlatList
-          data={buckets}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={Colors.primary} />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <HardDrive size={48} color={Colors.textDim} />
-              <Text style={styles.emptyText}>No buckets found.</Text>
-            </View>
-          }
-        />
-      )}
-      
-      <TouchableOpacity style={styles.fab}>
-        <Plus size={32} color="#000" />
-      </TouchableOpacity>
-    </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <View style={styles.container}>
+        {isLoading ? (
+          <ActivityIndicator style={styles.loader} color={Colors.primary} />
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={fetchBuckets}>
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={buckets}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={Colors.primary} />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <HardDrive size={48} color={Colors.textDim} />
+                <Text style={styles.emptyText}>No buckets found.</Text>
+              </View>
+            }
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+  },
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.background,
   },
   loader: {
@@ -161,6 +181,7 @@ const styles = StyleSheet.create({
     color: Colors.error,
     textAlign: 'center',
     marginBottom: Spacing.md,
+    fontSize: 16,
   },
   retryButton: {
     backgroundColor: Colors.surfaceHighlight,
