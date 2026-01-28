@@ -22,6 +22,7 @@ export default function FileBrowserScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [bucketSize, setBucketSize] = useState<number | null>(null);
   
   // Preview State
   const [previewImage, setPreviewImage] = useState<{ url: string, name: string } | null>(null);
@@ -29,8 +30,46 @@ export default function FileBrowserScreen() {
   useEffect(() => {
     if (client && bucket) {
       fetchFiles();
+      fetchBucketSize();
     }
   }, [client, bucket, path]);
+
+  const formatSize = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const fetchBucketSize = async () => {
+    if (!client || !bucket) return;
+    try {
+      let totalSize = 0;
+      let queue = [''];
+      
+      // Basic recursive sum (limit to 1000 items/folders for performance)
+      let itemCount = 0;
+      while (queue.length > 0 && itemCount < 1000) {
+        const currentPath = queue.shift()!;
+        const { data, error: listError } = await client.storage.from(bucket).list(currentPath);
+        
+        if (listError) break;
+        
+        for (const item of data || []) {
+          itemCount++;
+          if (item.id) {
+            totalSize += item.metadata?.size || 0;
+          } else {
+            queue.push(currentPath ? `${currentPath}/${item.name}` : item.name);
+          }
+        }
+      }
+      setBucketSize(totalSize);
+    } catch (e) {
+      console.error('Error fetching bucket size:', e);
+    }
+  };
 
   const fetchFiles = async () => {
     if (!client || !bucket) return;
@@ -344,7 +383,12 @@ export default function FileBrowserScreen() {
 
       <View style={styles.pathHeader}>
         <TouchableOpacity onPress={() => setPath('')}>
-          <Text style={styles.bucketName}>{bucket}</Text>
+          <Text style={styles.bucketName}>
+            {bucket}
+            {bucketSize !== null && (
+              <Text style={styles.bucketSizeText}> ({formatSize(bucketSize)})</Text>
+            )}
+          </Text>
         </TouchableOpacity>
         {path.split('/').filter(Boolean).map((part, i) => (
           <View key={i} style={styles.pathPart}>
@@ -410,6 +454,11 @@ const styles = StyleSheet.create({
   bucketName: {
     color: Colors.primary,
     fontWeight: 'bold',
+  },
+  bucketSizeText: {
+    color: Colors.textSecondary,
+    fontWeight: 'normal',
+    fontSize: 12,
   },
   pathPart: {
     flexDirection: 'row',

@@ -19,12 +19,28 @@ export default function TableRecordsScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<any | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (client && table) {
       handleRefresh();
+      fetchCount();
     }
   }, [client, table]);
+
+  const fetchCount = async () => {
+    if (!client || !table) return;
+    try {
+      const { count, error } = await client
+        .from(table)
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) throw error;
+      setTotalCount(count);
+    } catch (e) {
+      console.error('Error fetching table count:', e);
+    }
+  };
 
   const fetchRecords = async (pageIndex: number, clear: boolean = false) => {
     if (!client || !table) return;
@@ -180,7 +196,11 @@ export default function TableRecordsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: table || 'Table View' }} />
+      <Stack.Screen 
+        options={{ 
+          title: table ? `${table}${totalCount !== null ? ` (${totalCount})` : ''}` : 'Table View' 
+        }} 
+      />
       <FlatList
         data={records}
         renderItem={renderRecordItem}
