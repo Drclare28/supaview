@@ -14,7 +14,8 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
-      const pat = await SecureStore.getItemAsync('supaview_platform_pat');
+      const PAT_KEY = 'baseview_platform_pat';
+      const pat = await SecureStore.getItemAsync(PAT_KEY);
       const p = await ProjectStore.getProjects();
       
       if (pat) {

@@ -2,14 +2,14 @@ export const Colors = {
   background: '#0a0a0a',
   surface: '#121212',
   surfaceHighlight: '#1a1a1a',
-  primary: '#3ecf8e', // Supabase Green
-  primaryDark: '#2eb87a',
+  primary: '#6366f1', // Indigo
+  primaryDark: '#4f46e5',
   text: '#ffffff',
   textSecondary: '#a0a0a0',
   textDim: '#666666',
   border: '#2a2a2a',
   error: '#ff4d4d',
-  success: '#3ecf8e',
+  success: '#10b981', // Standard Emerald/Green
   warning: '#f5a623',
   info: '#0070f3',
 };

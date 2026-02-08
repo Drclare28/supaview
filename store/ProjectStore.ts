@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const PROJECTS_KEY = 'supaview_projects';
+const PROJECTS_KEY = 'baseview_projects';
 
 export interface Project {
   id: string;

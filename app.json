@@ -1,28 +1,33 @@
 {
   "expo": {
-    "name": "SupaView",
+    "name": "BaseView",
     "slug": "supaview",
-    "scheme": "supaview",
+    "scheme": "baseview",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/SupaView_Logo.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#09111c"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vertizonticalstudios.supaview"
+      "bundleIdentifier": "com.vertizonticalstudios.supaview",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "appleTeamId": "92H2HFX9Q7"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#09111c"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.vertizonticalstudios.supaview"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,6 +37,12 @@
       "expo-secure-store",
       "expo-font",
       "expo-web-browser"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6a2dfcf7-042d-4c8b-8862-bd1f6d104df7"
+      }
+    }
   }
 }

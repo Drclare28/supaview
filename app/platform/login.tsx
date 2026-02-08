@@ -5,9 +5,9 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
-import { Key, ExternalLink, ShieldCheck, Github } from 'lucide-react-native';
+import { Key, ExternalLink, Eye, Github } from 'lucide-react-native';
 
-const PAT_KEY = 'supaview_platform_pat';
+const PAT_KEY = 'baseview_platform_pat';
 const SUPABASE_OAUTH_URL = 'https://api.supabase.com/v1/oauth/authorize';
 const SUPABASE_TOKEN_URL = 'https://api.supabase.com/v1/oauth/token';
 
@@ -30,7 +30,7 @@ export default function PlatformLoginScreen() {
     {
       clientId: CLIENT_ID,
       redirectUri: AuthSession.makeRedirectUri({
-        scheme: 'supaview',
+        scheme: 'baseview',
         path: 'oauth'
       }),
       scopes: ['all'],
@@ -98,10 +98,12 @@ export default function PlatformLoginScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.iconContainer}>
-          <ShieldCheck size={48} color={Colors.primary} />
+          <Eye size={48} color={Colors.primary} />
         </View>
         
-        <Text style={styles.title}>Welcome to SupaView</Text>
+        <Text style={styles.title}>
+          <Text style={{ color: Colors.primary }}>Base</Text>View
+        </Text>
         <Text style={styles.description}>
           The easiest way to manage your projects is by connecting your account.
         </Text>
@@ -112,7 +114,7 @@ export default function PlatformLoginScreen() {
           disabled={isLoading}
         >
           <View style={styles.oauthIcon}>
-            <ShieldCheck size={20} color="#000" />
+            <Eye size={20} color="#000" />
           </View>
           <Text style={styles.oauthButtonText}>Login with Supabase</Text>
         </TouchableOpacity>

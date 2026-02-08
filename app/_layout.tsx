@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { Colors } from '../constants/Theme';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -42,7 +42,16 @@ export default function RootLayout() {
           },
         }}
       >
-        <Stack.Screen name="index" options={{ title: 'SupaView' }} />
+        <Stack.Screen 
+          name="index" 
+          options={{ 
+            headerTitle: () => (
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: Colors.text }}>
+                <Text style={{ color: Colors.primary }}>Base</Text>View
+              </Text>
+            )
+          }} 
+        />
         <Stack.Screen name="project/add" options={{ title: 'Add Project' }} />
         <Stack.Screen name="platform/login" options={{ title: 'Supabase Account' }} />
         <Stack.Screen name="platform/projects" options={{ title: 'Projects', gestureEnabled: false, headerBackVisible: false }} />

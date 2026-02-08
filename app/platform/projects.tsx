@@ -7,7 +7,7 @@ import { SupabaseManagementService, SupabaseProject, SupabaseOrg } from '../../s
 import { Database, Globe, Layers, LogOut, ChevronRight } from 'lucide-react-native';
 import { ProjectStore } from '../../store/ProjectStore';
 
-const PAT_KEY = 'supaview_platform_pat';
+const PAT_KEY = 'baseview_platform_pat';
 
 export default function PlatformProjectsScreen() {
   const router = useRouter();
